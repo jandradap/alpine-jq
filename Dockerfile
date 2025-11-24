@@ -1,24 +1,29 @@
-FROM alpine:3.8
+FROM alpine:latest
 
 ARG BUILD_DATE
 ARG VCS_REF
 ARG VERSION
-LABEL org.label-schema.build-date=$BUILD_DATE \
-			org.label-schema.name="alpine-jq" \
-			org.label-schema.description="Alpine with curl and jq" \
-			org.label-schema.url="http://andradaprieto.es" \
-			org.label-schema.vcs-ref=$VCS_REF \
-			org.label-schema.vcs-url="https://github.com/jandradap/alpine-jq" \
-			org.label-schema.vendor="Jorge Andrada Prieto" \
-			org.label-schema.version=$VERSION \
-			org.label-schema.schema-version="1.0" \
-			maintainer="Jorge Andrada Prieto <jandradap@gmail.com>" \
-			org.label-schema.docker.cmd=""
 
-WORKDIR /root
+LABEL org.opencontainers.image.created=$BUILD_DATE \
+      org.opencontainers.image.title="alpine-jq" \
+      org.opencontainers.image.description="Alpine with curl and jq" \
+      org.opencontainers.image.url="http://andradaprieto.es" \
+      org.opencontainers.image.revision=$VCS_REF \
+      org.opencontainers.image.source="https://github.com/jandradap/alpine-jq" \
+      org.opencontainers.image.vendor="Jorge Andrada Prieto" \
+      org.opencontainers.image.version=$VERSION \
+      org.opencontainers.image.authors="Jorge Andrada Prieto <jandradap@gmail.com>"
 
-RUN apk --update --clean-protected --no-cache add \
+# Create a non-root user
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+
+WORKDIR /home/appuser
+
+RUN apk --no-cache add \
   openssl \
   bash \
   curl \
   jq
+
+# Switch to non-root user
+USER appuser
